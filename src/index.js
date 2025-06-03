@@ -1,7 +1,7 @@
 // entry file for node js system
 import dotenv from "dotenv";
 import { app } from "./app.js";
-import sequelize from "./db/index.js";
+import sequelize from "./db/connection.js";
 
 dotenv.config({
   path: "./.env",
