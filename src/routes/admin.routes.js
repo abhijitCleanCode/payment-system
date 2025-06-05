@@ -1,8 +1,16 @@
 import express from "express";
-import { CREATEADMIN } from "../controllers/admin.controller.js";
+import {
+  CREATE_HEADER_WITH_VISIBILITY,
+  CREATE_USER_BY_ADMIN,
+  CREATEADMIN,
+} from "../controllers/admin.controller.js";
 
 const adminRouter = express.Router();
 
-adminRouter.post("/create", CREATEADMIN);
+// todo: restrict access by enforcing policy
+
+adminRouter.post("/create-admin", CREATEADMIN);
+adminRouter.post("/create-user", CREATE_USER_BY_ADMIN);
+adminRouter.post("/create-header", CREATE_HEADER_WITH_VISIBILITY);
 
 export default adminRouter;

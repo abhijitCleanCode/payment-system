@@ -77,7 +77,7 @@ User.associate = (models) => {
 //* naming local hooks is important as it helps in debugging as well as removal become easy
 
 User.addHook("beforeCreate", "hashPassword", async (user) => {
-  user.password = awaitbcrypt.hash(user.password, 10);
+  user.password = await bcrypt.hash(user.password, 10);
 });
 
 User.addHook("beforeUpdate", "hashPasswordIfChanges", async (user) => {
