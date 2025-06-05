@@ -174,10 +174,11 @@ class AdminServices {
     }
   }
 
+  //todo: need some refinements
   static async createHeaderWithVisibility({
     name = "",
     description = "",
-    visibilityRules = "",
+    visibilityRules = [],
     adminUserId,
   }) {
     if ([name, visibilityRules].some((field) => field.trim() === "")) {
