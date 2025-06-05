@@ -9,7 +9,7 @@ const generate_AccessToken_RefreshToken = async function (userId) {
     // 1. obtain a single entry from the table, using the provided primay key
     const user = await User.findByPk(userId, {
       attributes: ["id", "email", "password"], // select needed fields
-      raw: true, // return the result as a plain js obj, cautions it can break association and return data unexpectedly
+      // raw: true, // return the result as a plain js obj, cautions it can break association and return data unexpectedly
     });
 
     if (!user) {

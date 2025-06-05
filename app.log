@@ -20,3 +20,5 @@
 {"level":"\u001b[32minfo\u001b[39m","message":"{\"method\":\"GET\",\"url\":\"/test\",\"status\":\"200\",\"responseTime\":\"8.797\"}","timestamp":"2025-06-02T15:51:42.736Z"}
 {"level":"\u001b[32minfo\u001b[39m","message":"{\"method\":\"GET\",\"url\":\"/test\",\"status\":\"200\",\"responseTime\":\"5.106\"}","timestamp":"2025-06-02T15:51:43.285Z"}
 {"level":"\u001b[32minfo\u001b[39m","message":"{\"method\":\"GET\",\"url\":\"/test\",\"status\":\"200\",\"responseTime\":\"5.014\"}","timestamp":"2025-06-02T15:51:43.740Z"}
+{"level":"\u001b[32minfo\u001b[39m","message":"{\"method\":\"GET\",\"url\":\"/test\",\"status\":\"200\",\"responseTime\":\"50.466\"}","timestamp":"2025-06-05T05:20:16.054Z"}
+{"level":"\u001b[32minfo\u001b[39m","message":"{\"method\":\"POST\",\"url\":\"/api/v1/admin/create\",\"status\":\"500\",\"responseTime\":\"224.985\"}","timestamp":"2025-06-05T05:24:55.269Z"}

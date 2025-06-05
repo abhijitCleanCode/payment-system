@@ -95,7 +95,7 @@ User.prototype.comparePassword = async function (candidatePassword) {
 User.prototype.generateAccessToken = function () {
   return jwt.sign(
     {
-      id: this._id,
+      id: this.id,
       role: this.role,
     },
     process.env.ACCESS_TOKEN_SECRET,
@@ -108,7 +108,7 @@ User.prototype.generateAccessToken = function () {
 User.prototype.generateRefreshToken = function () {
   return jwt.sign(
     {
-      id: this._id,
+      id: this.id,
       role: this.role,
     },
     process.env.REFRESH_TOKEN_SECRET,
