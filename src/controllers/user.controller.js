@@ -5,7 +5,7 @@ import sequelize from "../db/connection.js";
 import UserServices from "../services/user.service.js";
 
 // user(admin, employee, guest) can login to the system. System should differentiate users based on their role and provide different access levels.
-export const login = async function (req, res) {
+export const LOGIN = async function (req, res) {
   const { email, password } = req.body;
 
   try {
@@ -38,7 +38,7 @@ export const login = async function (req, res) {
   }
 };
 
-export const logout = async function (req, res) {
+export const LOG_OUT = async function (req, res) {
   const { userid } = req.user;
 
   // todo: make a db call to remove refresh token from a specific record in user table
@@ -55,7 +55,7 @@ export const logout = async function (req, res) {
     .json(new ApiResponse(200, null, "User log out successfully"));
 };
 
-export const changeCurrentPassword = async function (req, res) {
+export const CHANGE_CURRENT_PASSWORD = async function (req, res) {
   const { currentPassword, newPassword } = req.body;
   const userId = req.user.id;
 
@@ -76,3 +76,6 @@ export const changeCurrentPassword = async function (req, res) {
     });
   }
 };
+
+// fetch the current logined in user details from user table and return it
+export const GET_CURRENT_USER = async function (req, res) {};

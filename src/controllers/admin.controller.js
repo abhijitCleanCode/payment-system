@@ -70,3 +70,6 @@ export const CREATE_HEADER_WITH_VISIBILITY = async function (req, res) {
     });
   }
 };
+
+// this endpoint helps admin to filter out users based on their role (employee, guest).
+export const getFilteredUsers = async function (req, res) {};

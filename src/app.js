@@ -7,6 +7,7 @@ import morgan from "morgan";
 
 // routes
 import adminRouter from "./routes/admin.routes.js";
+import userRouter from "./routes/user.routes.js";
 
 // build express app
 const app = express();
@@ -44,5 +45,6 @@ app.use(cookieParser());
 
 // routes
 app.use("/api/v1/admin", adminRouter);
+app.use("/api/v1/user", userRouter);
 
 export { app };
