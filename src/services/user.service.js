@@ -7,10 +7,12 @@ import { ApiError } from "../utils/ApiError.utils.js";
 const generate_AccessToken_RefreshToken = async function (userId) {
   try {
     // 1. obtain a single entry from the table, using the provided primay key
-    const user = await User.findByPk(userId, {
-      attributes: ["id", "email", "password"], // select needed fields
-      // raw: true, // return the result as a plain js obj, cautions it can break association and return data unexpectedly
-    });
+    const user = await User.findByPk(userId);
+
+    console.log(
+      "user services :: generate_AccessToken_RefreshToken :: user: ",
+      user
+    );
 
     if (!user) {
       throw new ApiError(404, "User not found");
@@ -38,18 +40,22 @@ class UserServices {
       throw new ApiError(400, "Email and password are required");
     }
 
-    const transaction = await sequelize.transaction();
     try {
-      const user = await User.findOne({
+      const user = await User.scope("withPassword").findOne({
         where: { email },
         include: [
           {
             model: Role,
+            as: "roles",
             attributes: ["name"],
+            // exclude the join table attributes (userRole)
+            through: { attributes: [] },
           },
         ],
-        attributes: ["name", "email", "password", "accountType", "isActive"],
       });
+
+      console.log("user services :: login :: user: ", user);
+
       if (!user) {
         throw new ApiError(404, "User does not exist");
       }
@@ -58,6 +64,13 @@ class UserServices {
       if (!isPasswordValid) {
         throw new ApiError(401, "Email or Password does not match");
       }
+
+      console.log(
+        "user services :: login :: isPasswordValid: ",
+        isPasswordValid
+      );
+
+      console.log("user services :: login :: user id: ", user.id);
 
       const { accessToken, refreshToken } =
         await generate_AccessToken_RefreshToken(user.id);
@@ -68,7 +81,6 @@ class UserServices {
         refreshToken,
       };
     } catch (error) {
-      await transaction.rollback();
       console.log("user services :: login :: error: ", error);
       throw new ApiError(500, "User login failed");
     }

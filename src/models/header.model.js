@@ -12,6 +12,11 @@ const Header = sequelize.define(
     description: {
       type: DataTypes.TEXT,
     },
+    created_by: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      // references: { model: "users", key: "id" },
+    },
   },
   {
     tableName: "headers",
@@ -31,8 +36,8 @@ Header.associate = (models) => {
   // a header can be visible to many roles and a role can be visible to many headers
   Header.belongsToMany(models.Role, {
     through: models.HeaderVisibility,
-    foreignKey: "header_id",
-    as: "visibility_rules",
+    foreignKey: "headerId",
+    as: "visibilityRules",
   });
 };
 

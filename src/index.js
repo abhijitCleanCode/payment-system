@@ -30,7 +30,10 @@ app.get("/test", async (req, res) => {
 // setting up the server with database synchronization to prevent abnormalities b/w model and table in db
 const startServer = async () => {
   try {
-    // sync can be a destructive operation, thus not suited for production. For production, use migration instead
+    await sequelize.authenticate();
+    console.log("Database connection successful");
+
+    //! sync can be a destructive operation, thus not suited for production. For production, use migration instead
     if (process.env.NODE_ENV === "development") {
       sequelize.sync({ alter: true }); // first check the current state of the table in the database, after that make neccesaary changes to match the model
     }

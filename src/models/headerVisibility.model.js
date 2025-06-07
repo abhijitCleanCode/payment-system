@@ -9,13 +9,15 @@ const HeaderVisibility = sequelize.define(
       type: DataTypes.BOOLEAN,
       defaultValue: false, // following principle of least privilege
     },
-    // adding foreign key constraints
-    // headerId: {
-    //   references: { model: "headers", key: "id" },
-    // },
-    // roleId: {
-    //   references: { model: "roles", key: "id" },
-    // },
+    // adding foreign key columns explicitly
+    headerId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    roleId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
   },
   {
     tableName: "header_visibility",

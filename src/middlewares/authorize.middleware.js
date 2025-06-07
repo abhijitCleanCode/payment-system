@@ -8,15 +8,15 @@
 
 export function authorize(allowedRoles) {
   return (req, res, next) => {
-    const userRole = req.user.role || req.role;
+    const userAccountType = req.user.accountType || req.role;
 
     // Admin has access to everything
-    if (userRole === "admin") {
+    if (userAccountType === "admin") {
       return next();
     }
 
     // Check if the user's role is allowed
-    if (allowedRoles.includes(userRole)) {
+    if (allowedRoles.includes(userAccountType)) {
       return next();
     }
 

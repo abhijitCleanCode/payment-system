@@ -6,12 +6,12 @@ import HeaderVisibility from "../models/headerVisibility.model.js";
 import sequelize from "../db/connection.js";
 
 import { ApiError } from "../utils/ApiError.utils.js";
-import { ApiResponse } from "../utils/ApiResponse.utils.js";
 
-const generate_AccessToken_RefreshToken = async function (userId) {
+const generate_AccessToken_RefreshToken = async function (userId, transaction) {
   // 1. obtain a single entry from the table, using the provided primay key
   const user = await User.findByPk(userId, {
-    attributes: ["id", "email", "accountType", "isActive"], // select needed fields
+    attributes: ["id", "email", "accountType", "isActive"],
+    transaction,
   });
 
   if (!user) {
@@ -67,7 +67,8 @@ class AdminServices {
 
       const createdUser = await User.findByPk(user.id, {
         attributes: { exclude: ["password"] },
-      });
+        transaction,
+      }); // include in the scope of current transaction, so that the query can see the changes made in the db by the current transaction
       if (!createdUser) {
         throw new ApiError(404, "User not found");
       }
@@ -88,18 +89,21 @@ class AdminServices {
 
       // generate token
       const { accessToken, refreshToken } =
-        await generate_AccessToken_RefreshToken(user.User.dataValues.id);
+        await generate_AccessToken_RefreshToken(user.id, transaction);
 
       await transaction.commit();
 
       return {
-        data: createdUser,
+        user: createdUser,
         accessToken,
         refreshToken,
       };
     } catch (error) {
       await transaction.rollback();
-      console.log("Admin creation failed: ", error);
+      console.log(
+        "src :: services :: admin services :: create admin :: error: ",
+        error
+      );
       throw new ApiError(500, "Failed to create admin");
     }
   }
@@ -126,7 +130,7 @@ class AdminServices {
     const transaction = await sequelize.transaction();
 
     try {
-      const [userRole, created] = Role.findOrCreate({
+      const [userRole, created] = await Role.findOrCreate({
         where: { name: role.toLowerCase() }, // find
         defaults: { name: role.toLowerCase() }, // create if not found
         transaction,
@@ -146,6 +150,7 @@ class AdminServices {
       // ensure that db write was successful
       const createdUser = await User.findByPk(user.id, {
         attributes: { exclude: ["password"] },
+        transaction,
       });
       if (!createdUser) {
         throw new ApiError(
@@ -170,19 +175,26 @@ class AdminServices {
       };
     } catch (error) {
       await transaction.rollback();
+      console.log(
+        "src :: services :: admin services :: createUserByAdmin :: error: ",
+        error
+      );
       throw new ApiError(500, "Admin failed to create user");
     }
   }
 
-  //todo: need some refinements
   static async createHeaderWithVisibility({
-    name = "",
-    description = "",
+    name,
+    description,
     visibilityRules = [],
     adminUserId,
   }) {
-    if ([name, visibilityRules].some((field) => field.trim() === "")) {
+    if (!name) {
       throw new ApiError(400, "Please fill the required details");
+    }
+
+    if (!Array.isArray(visibilityRules) || visibilityRules.length === 0) {
+      throw new ApiError(400, "Please fill the visibility details");
     }
 
     // start transaction
@@ -199,8 +211,15 @@ class AdminServices {
         { transaction }
       );
 
+      console.log(
+        "src :: services :: admin services :: createHeaderWithVisibility :: header: ",
+        header
+      );
+
       // ensure db write was successful
-      const createdHeader = await Header.findByPk(header.id);
+      const createdHeader = await Header.findByPk(header.id, {
+        transaction,
+      });
       if (!createdHeader) {
         throw new ApiError(
           500,
@@ -208,21 +227,42 @@ class AdminServices {
         );
       }
 
+      console.log(
+        "src :: services :: admin services :: createHeaderWithVisibility :: createdHeader: ",
+        createdHeader
+      );
+
+      const visibilityRecords = [];
+
       // decide visibility wrt user role
-      const visibilityRecords = await Promise.all(
+      await Promise.all(
         visibilityRules.map(async (rule) => {
-          const role = await Role.findOne(
+          const [role] = await Role.findOrCreate({
+            where: { name: rule.roleName.toLowerCase() },
+            defaults: { name: rule.roleName.toLowerCase() },
+            transaction,
+          });
+
+          if (!role) {
+            throw new ApiError(
+              500,
+              `Role ${rule.roleName} could not found or created`
+            );
+          }
+
+          await HeaderVisibility.create(
             {
-              where: { name: rule.roleName.toLowerCase() },
+              headerId: header.id,
+              roleId: role.id,
+              is_visible: rule.isVisible,
+              updated_by: adminUserId,
             },
             { transaction }
           );
 
-          return HeaderVisibility.create({
-            header_id: header.id,
-            role_id: role.id,
-            is_visible: rule.isVisible,
-            updated_by: adminUserId,
+          visibilityRecords.push({
+            roleName: role.name,
+            isVisible: rule.isVisible,
           });
         })
       );
@@ -231,16 +271,24 @@ class AdminServices {
 
       return {
         data: createdHeader,
-        visibilityRules: visibilityRecords.map((v) => ({
-          roleName: v.Role.name,
-          isVisible: v.is_visible,
-        })),
+        visibilityRules: visibilityRecords,
       };
     } catch (error) {
       await transaction.rollback();
+      console.error(
+        // Use console.error for actual errors
+        "src :: services :: admin services :: createHeaderWithVisibility :: error: ",
+        error // Log the actual error object
+      );
       throw new ApiError(500, "Admin failed to create header");
     }
   }
+
+  // admin can filter out from all payment in db wrt to month
+
+  // admin can make payment on behalf of any user
+
+  // admin can get all time payment data of any user in db to see payment report
 }
 
 export default AdminServices;

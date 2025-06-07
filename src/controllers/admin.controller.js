@@ -26,7 +26,7 @@ export const CREATEADMIN = async function (req, res) {
 
 export const CREATE_USER_BY_ADMIN = async function (req, res) {
   // getting the data from the frontend
-  const { name, email, password, role = "guest" } = req.body;
+  const { name = "", email = "", password = "", role = "guest" } = req.body;
 
   try {
     const data = await AdminServices.createUserByAdmin({
@@ -49,8 +49,10 @@ export const CREATE_USER_BY_ADMIN = async function (req, res) {
 
 export const CREATE_HEADER_WITH_VISIBILITY = async function (req, res) {
   // 1. getting the header's data from the frontend
-  const { name, description, visibilityRules } = req.body;
-  const { userId: adminUserId } = req.user;
+  const { name = "", description = "", visibilityRules = [] } = req.body;
+  const { id: adminUserId } = req.user;
+
+  console.log("adminUserId: ", adminUserId);
 
   try {
     const data = await AdminServices.createHeaderWithVisibility({

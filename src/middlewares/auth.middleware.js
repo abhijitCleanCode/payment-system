@@ -1,11 +1,11 @@
 import jwt from "jsonwebtoken";
 
-import User from "../models/user.model.js";
-import Role from "../models/role.model.js";
+import { models } from "../models/index.js";
+const { User, Role } = models;
 
 import { ApiError } from "../utils/ApiError.utils.js";
 
-export const VERIFY_TOKEN = async (req, resizeBy, next) => {
+export const VERIFY_TOKEN = async (req, res, next) => {
   try {
     const token =
       req.header("Authorization")?.replace("Bearer ", "") ||
@@ -18,11 +18,13 @@ export const VERIFY_TOKEN = async (req, resizeBy, next) => {
     const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
 
     const user = await User.findOne({
-      where: { id: decodedToken.userId },
+      where: { id: decodedToken.id },
       include: [
         {
           model: Role,
+          as: "roles",
           attributes: ["name"],
+          through: { attributes: [] },
         },
       ],
       attributes: {
@@ -34,7 +36,10 @@ export const VERIFY_TOKEN = async (req, resizeBy, next) => {
       throw new ApiError(401, "Invalid token: user not found");
     }
 
-    console.log("auth.middleware :: verify token :: user: ", user);
+    console.log(
+      "src :: middleware :: auth.middleware :: verify token :: user: ",
+      user
+    );
 
     req.user = user;
     next();

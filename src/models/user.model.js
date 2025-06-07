@@ -96,7 +96,7 @@ User.prototype.generateAccessToken = function () {
   return jwt.sign(
     {
       id: this.id,
-      role: this.role,
+      role: this.accountType,
     },
     process.env.ACCESS_TOKEN_SECRET,
     {
@@ -109,7 +109,7 @@ User.prototype.generateRefreshToken = function () {
   return jwt.sign(
     {
       id: this.id,
-      role: this.role,
+      role: this.accountType,
     },
     process.env.REFRESH_TOKEN_SECRET,
     {

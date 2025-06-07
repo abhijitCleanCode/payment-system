@@ -1,4 +1,4 @@
-import { User } from "../models/user.model.js";
+import User from "../models/user.model.js";
 import { ApiError } from "../utils/ApiError.utils.js";
 import { ApiResponse } from "../utils/ApiResponse.utils.js";
 import sequelize from "../db/connection.js";
@@ -60,7 +60,7 @@ export const CHANGE_CURRENT_PASSWORD = async function (req, res) {
   const userId = req.user.id;
 
   try {
-    const data = await UserServices.changeCurrentPassword({
+    await UserServices.changeCurrentPassword({
       currentPassword,
       newPassword,
       userId,

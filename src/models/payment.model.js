@@ -1,5 +1,5 @@
 import { DataTypes } from "sequelize";
-import sequelize from "../db/connection";
+import sequelize from "../db/connection.js";
 
 const Payment = sequelize.define(
   "Payment",
