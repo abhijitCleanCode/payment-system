@@ -4,12 +4,25 @@ import sequelize from "../db/connection.js";
 const Payment = sequelize.define(
   "Payment",
   {
+    payeeId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: "users",
+        key: "id",
+      },
+      validate: {
+        notNull: {
+          msg: "Payee ID is required in payment record",
+        },
+      },
+    },
     payeeName: {
       type: DataTypes.STRING(100),
       allowNull: false,
       validate: {
         notNull: {
-          msg: "Payee name is required in payment",
+          msg: "Payee name is required in payment record",
         },
         notEmpty: {
           msg: "Payee name cannot be empty",
@@ -43,7 +56,7 @@ const Payment = sequelize.define(
       allowNull: false,
       validate: {
         notNull: {
-          msg: "Payment amount is required",
+          msg: "Payment amount is required in payment record",
         },
         min: {
           // minimum payment amount
@@ -89,12 +102,34 @@ const Payment = sequelize.define(
     receiverId: {
       type: DataTypes.INTEGER,
       allowNull: false,
+      references: { model: "users", key: "id" },
       validate: {
         notNull: {
-          msg: "Receiver id is required while creating a row in payment table",
+          msg: "Receiver id is required in payment record",
         },
       },
-      references: { model: "users", key: "id" },
+    },
+    headerId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: { model: "headers", key: "id" },
+      validate: {
+        notNull: {
+          msg: "Header id is required in payment record",
+        },
+      },
+    },
+    headerName: {
+      type: DataTypes.STRING(100),
+      allowNull: false,
+      validate: {
+        notNull: {
+          msg: "Header name is required in payment record",
+        },
+        notEmpty: {
+          msg: "Header name cannot be empty",
+        },
+      },
     },
   },
   {
@@ -102,6 +137,7 @@ const Payment = sequelize.define(
     timestamps: true,
     indexes: [
       { fields: ["receiverId"] },
+      { fields: ["payeeId"] },
       { fields: ["transactionType"] }, // transaction type filtering
       { fields: ["createdAt"] }, // date based queries
     ],
@@ -110,10 +146,22 @@ const Payment = sequelize.define(
 
 // relationship
 Payment.associate = (models) => {
-  // a payment can be made by only one user and a user can make many payments so it is a one to many relationship
+  // payment can belong to only one user who receives the payment
   Payment.belongsTo(models.User, {
     foreignKey: "receiverId", // receiverId will be stored in the receiver_id column to payments table
     as: "receiver",
+  });
+
+  // payment can belong to only one user who made the payment (payee)
+  Payment.belongsTo(models.User, {
+    foreignKey: "payeeId",
+    as: "payee",
+  });
+
+  // payment can belong to only one header
+  Payment.belongsTo(models.Header, {
+    foreignKey: "headerId",
+    as: "header",
   });
 };
 

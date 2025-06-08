@@ -9,12 +9,13 @@ class HeaderServices {
     // for admin user, get all headers
     if (userRole === "admin") {
       const headers = await Header.findAll({
+        attributes: ["id", "name", "description", "createdAt"],
         include: [
           {
             model: Role,
             as: "visibilityRules",
-            through: { attributes: ["is_visible"] },
-            attributes: ["id", "name"],
+            through: { attributes: [] },
+            // attributes: ["id", "name"],
           },
         ],
       });
@@ -29,9 +30,9 @@ class HeaderServices {
           model: Role,
           as: "visibilityRules",
           where: { name: userRole.toLowerCase() },
-          through: { where: { is_visible: true }, attributes: ["is_visible"] },
-          required: true,
-          attributes: ["id", "name"],
+          through: { where: { is_visible: true }, attributes: [] },
+          required: true, // using inner join
+          attributes: [],
         },
       ],
       attributes: ["id", "name", "description", "createdAt"],

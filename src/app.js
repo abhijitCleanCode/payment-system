@@ -1,4 +1,4 @@
-import express, { urlencoded } from "express";
+import express from "express";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 
@@ -9,6 +9,7 @@ import morgan from "morgan";
 import adminRouter from "./routes/admin.routes.js";
 import userRouter from "./routes/user.routes.js";
 import headerRouter from "./routes/header.routes.js";
+import paymentRouter from "./routes/payment.routes.js";
 
 // build express app
 const app = express();
@@ -48,5 +49,6 @@ app.use(cookieParser());
 app.use("/api/v1/admin", adminRouter);
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/header", headerRouter);
+app.use("/api/v1/payment", paymentRouter);
 
 export { app };

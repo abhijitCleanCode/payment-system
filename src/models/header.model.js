@@ -33,11 +33,17 @@ Header.associate = (models) => {
     as: "creator", // alias for created_by column in headers table
     onDelete: "SET NULL", // if the user is deleted, set the created_by column to null. OR "CASCADE" to delete headers
   });
+
   // a header can be visible to many roles and a role can be visible to many headers
   Header.belongsToMany(models.Role, {
     through: models.HeaderVisibility,
     foreignKey: "headerId",
     as: "visibilityRules",
+  });
+
+  Header.hasMany(models.Payment, {
+    foreignKey: "headerId",
+    as: "payments",
   });
 };
 

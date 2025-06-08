@@ -1,4 +1,6 @@
 import Payment from "../models/payment.model.js";
+import Header from "../models/header.model.js";
+import User from "../models/user.model.js";
 import sequelize from "../db/connection.js";
 
 import { ApiError } from "../utils/ApiError.utils.js";
@@ -6,6 +8,7 @@ import { ApiError } from "../utils/ApiError.utils.js";
 class PaymentServices {
   static async makePayment(payment) {
     const {
+      payeeId,
       payeeName,
       address,
       pinCode,
@@ -18,14 +21,21 @@ class PaymentServices {
       bankRefNo,
       remark,
       transactionRemark,
-      userId,
+      receiverId,
+      headerId,
+      headerName,
     } = payment;
 
-    if (!payeeName || !amount || !transactionType) {
-      throw new ApiError(
-        400,
-        "Payee name, amount and transaction type are required"
-      );
+    if (
+      !payeeId ||
+      !payeeName ||
+      !amount ||
+      !transactionType ||
+      !receiverId ||
+      !headerId ||
+      !headerName
+    ) {
+      throw new ApiError(400, "Please fill in the required details");
     }
 
     if (Number(amount) <= 0) {
@@ -42,11 +52,24 @@ class PaymentServices {
     const transaction = await sequelize.transaction();
 
     try {
-      // upload images to cloud if provided
+      // verify headerId
+      const header = await Header.findByPk(headerId, { transaction });
+      if (!header) {
+        throw new ApiError(404, "Header not found");
+      }
+
+      // verify receiverId
+      const user = await User.findByPk(receiverId, { transaction });
+      if (!user) {
+        throw new ApiError(404, "Receiver not found");
+      }
+
+      // todo: upload images to cloud if provided
 
       // crete payment entry in db
       const paymentEntry = await Payment.create(
         {
+          payeeId,
           payeeName,
           address,
           pinCode,
@@ -59,7 +82,9 @@ class PaymentServices {
           bankRefNo: transactionType === "cash" ? null : bankRefNo,
           remark,
           transactionRemark,
-          receiverId: userId, // a bit confused, is this a person who is receiving the payment or the header
+          receiverId, //this a person who is receiving the payment
+          headerId,
+          headerName,
         },
         { transaction }
       );
@@ -75,7 +100,7 @@ class PaymentServices {
 
       return createdPayment;
     } catch (error) {
-      transaction.rollback();
+      await transaction.rollback();
       console.log(
         "src :: services :: paymentservices :: makePayment :: error: ",
         error

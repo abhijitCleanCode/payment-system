@@ -54,6 +54,7 @@ const User = sequelize.define(
 
 // relationship
 User.associate = (models) => {
+  //! user will have one role, a role will have many users
   // a user can have many roles and a role can have many users, so it is a many to many relationship
   User.belongsToMany(models.Role, {
     through: models.UserRole, // linking user table and role table through a junction table called userRole
@@ -71,6 +72,18 @@ User.associate = (models) => {
   User.hasMany(models.HeaderVisibility, {
     foreignKey: "updated_by", // user who updated the header, its users.id will be stored in the updated_by column to headerVisibility table
     as: "visibility_updates",
+  });
+
+  // user as a payee
+  User.hasMany(models.Payment, {
+    foreignKey: "payeeId",
+    as: "paymentsMade",
+  });
+
+  // user as a receiver
+  User.hasMany(models.Payment, {
+    foreignKey: "receiverId",
+    as: "paymentsReceived",
   });
 };
 

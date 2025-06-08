@@ -1,6 +1,7 @@
-import { ApiResponse } from "../utils/ApiResponse.utils";
+import { ApiResponse } from "../utils/ApiResponse.utils.js";
+import PaymentServices from "../services/payment.service.js";
 
-export const MAKE_PAYMENT = async function (req, res) {
+export const CREATE_PAYMENT = async function (req, res) {
   const {
     payeeName,
     address,
@@ -14,11 +15,15 @@ export const MAKE_PAYMENT = async function (req, res) {
     bankRefNo,
     remark,
     transactionRemark,
+    receiverId,
+    headerId,
+    headerName,
   } = req.body;
-  const { userId } = req.user;
+  const { id: payeeId } = req.user;
 
   try {
     const data = await PaymentServices.makePayment({
+      payeeId,
       payeeName,
       address,
       pinCode,
@@ -31,7 +36,9 @@ export const MAKE_PAYMENT = async function (req, res) {
       bankRefNo,
       remark,
       transactionRemark,
-      userId,
+      receiverId,
+      headerId,
+      headerName,
     });
 
     return res
@@ -45,8 +52,4 @@ export const MAKE_PAYMENT = async function (req, res) {
   }
 };
 
-// is it really required if admin is already filtering the payments wrt to month
-export const GET_ALL_PAYMENTS = async function (req, res) {};
-
-// GET PAYMENTS SPECIFIC TO USER, to see user payment report
-export const GET_USER_PAYMENTS = async function (req, res) {};
+export const FILTER_PAYMENTS = async function (req, res) {};
